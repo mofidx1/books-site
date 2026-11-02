@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>مكتبة الكتب PDF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap">
+<style>
+:root{--blue:#1f4fd1;--blue-d:#173fa8;--blue-l:#e9efFc;--ink:#14213d;--muted:#5a6780;--line:#dde5f3;--bg:#f6f8fc;--card:#ffffff;color-scheme:light}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--blue:#5b8cff;--blue-d:#3b6ee8;--blue-l:#17274a;--ink:#e7edf9;--muted:#9aaac4;--line:#26344f;--bg:#0b1322;--card:#121d33;color-scheme:dark}}
+:root[data-theme="dark"]{--blue:#5b8cff;--blue-d:#3b6ee8;--blue-l:#17274a;--ink:#e7edf9;--muted:#9aaac4;--line:#26344f;--bg:#0b1322;--card:#121d33;color-scheme:dark}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 84px);scroll-behavior:smooth}
+body{font-family:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.8;min-height:100vh;font-size:16px;padding-top:env(safe-area-inset-top,0px)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--blue);z-index:20}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:3px solid #9bbcff;outline-offset:2px;border-radius:6px}
+[hidden]{display:none!important}
+.wrap{max-width:1180px;margin:0 auto;padding:0 18px}
+
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--blue);color:#fff}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:10px 16px;flex-wrap:wrap;padding:12px 0;max-width:1180px;margin:0 auto;padding-inline:18px}
+.logo{font-weight:700;font-size:1.2rem}
+nav{display:flex;flex-wrap:wrap;gap:4px 18px}
+nav a{font-weight:500;font-size:.96rem;padding:4px 0;border-bottom:2px solid transparent;opacity:.9}
+nav a:hover,nav a.on{opacity:1;border-color:#fff}
+
+.home{padding:0}
+.hero{background:var(--blue);color:#fff;padding:60px 0 72px;text-align:center}
+.hero h1{font-size:clamp(1.8rem,4.6vw,2.7rem);font-weight:700;line-height:1.4;margin-bottom:12px}
+.hero p{opacity:.92;max-width:620px;margin:0 auto 28px}
+.search{max-width:640px;margin:0 auto}
+.search input{width:100%;font:inherit;font-size:1.02rem;padding:14px 18px;border:0;border-radius:12px;background:#fff;color:#14213d;box-shadow:0 12px 30px rgba(10,30,90,.25)}
+.search input::placeholder{color:#7a8aa6}
+
+.shelf{max-width:1180px;margin:-30px auto 0;padding:0 18px;position:relative}
+.chips{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 8px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;font:inherit;font-weight:500;font-size:.95rem;cursor:pointer;background:var(--card);color:var(--ink);border:1px solid var(--line);padding:8px 18px;border-radius:999px;transition:background .2s,color .2s}
+.chip:hover{border-color:var(--blue)}
+.chip.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.count{color:var(--muted);font-size:.93rem;margin:16px 0 10px}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:22px;padding-bottom:48px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.cover{position:relative;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;padding:22px 20px;text-align:center;color:#fff;font-weight:700;font-size:1.18rem;line-height:1.6;background:linear-gradient(160deg,#2a5ee0,#14307d)}
+.cover::after{content:"";position:absolute;inset:0 auto 0 0;width:10px;background:rgba(0,0,0,.18);box-shadow:inset -2px 0 0 rgba(255,255,255,.15)}
+.cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cat-education{background:linear-gradient(160deg,#2a5ee0,#14307d)}
+.cat-novels{background:linear-gradient(160deg,#2b8fd1,#0d3d63)}
+.cat-technology{background:linear-gradient(160deg,#4a52d8,#1d1f5c)}
+.cat-science{background:linear-gradient(160deg,#1a8fa3,#0e4453)}
+.cat-stories{background:linear-gradient(160deg,#3d7ae8,#1b46a6)}
+.body{padding:16px 16px 18px;display:flex;flex-direction:column;gap:6px;flex:1}
+.tag{align-self:flex-start;font-size:.8rem;font-weight:500;background:var(--blue-l);color:var(--blue);padding:1px 10px;border-radius:6px}
+.body h3{font-size:1.06rem;line-height:1.55;font-weight:700}
+.author{color:var(--muted);font-size:.9rem}
+.desc{color:var(--muted);font-size:.9rem;line-height:1.7;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.btn{margin-top:auto;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--blue);color:#fff;padding:11px 14px;border-radius:9px;font-weight:700;transition:background .2s}
+.btn:hover{background:var(--blue-d)}
+.btn svg{width:18px;height:18px;flex:0 0 auto}
+.empty{text-align:center;color:var(--muted);padding:48px 0}
+
+.page{display:none;padding:52px 0 60px}
+.page.on{display:block}
+.page h2{font-size:1.9rem;font-weight:700;color:var(--blue);margin-bottom:18px}
+.page h3{font-size:1.1rem;margin:20px 0 6px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:26px}
+.panel p{margin-bottom:12px}
+.panel a{color:var(--blue);font-weight:500;text-decoration:underline;text-underline-offset:3px}
+.hint{color:var(--muted);font-size:.9rem}
+.panel+.panel{margin-top:20px}
+form{display:grid;gap:16px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+label{display:block;font-weight:500;font-size:.92rem;margin-bottom:6px}
+input,select,textarea{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink)}
+textarea{min-height:96px;resize:vertical}
+.btn-s{font:inherit;font-weight:700;cursor:pointer;background:var(--blue);color:#fff;border:0;padding:11px 20px;border-radius:9px;justify-self:start}
+.btn-s:hover{background:var(--blue-d)}
+.btn-s.danger{background:#c2410c;padding:6px 14px;font-size:.9rem}
+.item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+.gate{display:flex;gap:10px;flex-wrap:wrap}
+.gate input{flex:1;min-width:200px}
+#export{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85rem;min-height:160px;direction:ltr;text-align:left;margin-bottom:12px}
+
+footer{background:#0f2a5c;color:#d6e3ff;padding:44px 0 22px;font-size:.95rem}
+footer h4{color:#fff;font-size:1.05rem;margin-bottom:8px}
+footer a{color:#bfd4ff;text-decoration:underline;text-underline-offset:3px}
+.fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.copy{text-align:center;border-top:1px solid rgba(255,255,255,.12);margin-top:30px;padding-top:18px;font-size:.88rem;opacity:.8}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,140px);background:#0f2a5c;color:#fff;padding:12px 20px;border-radius:10px;z-index:50;max-width:92%;text-align:center;transition:transform .3s ease;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.toast.show{transform:translate(-50%,0)}
+
+@media (max-width:760px){
+  .hero{padding:44px 0 58px}
+  .shelf{margin-top:-24px}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  .body{padding:12px}
+  .body h3{font-size:.98rem}
+  .cover{font-size:1rem;padding:14px}
+  .btn{font-size:.94rem;padding:10px}
+  .row{grid-template-columns:1fr}
+  .fgrid{grid-template-columns:1fr}
+  .page h2{font-size:1.6rem}
+}
+@media (max-width:420px){
+  nav a{font-size:.9rem}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <a class="logo" href="#home">📚 مكتبة الكتب PDF</a>
+    <nav aria-label="القائمة الرئيسية">
+      <a href="#home" class="on">الرئيسية</a>
+      <a href="#about">من نحن</a>
+      <a href="#contact">تواصل معنا</a>
+      <a href="#privacy">سياسة الخصوصية</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="page home on" id="p-home">
+    <div class="hero">
+      <div class="wrap">
+        <h1>مكتبتك الرقمية للكتب بصيغة PDF</h1>
+        <p>تصفح كتب التعليم والروايات والتقنية والعلوم والقصص، ثم حمّل ما يناسبك بنقرة واحدة.</p>
+        <div class="search" role="search">
+          <input id="q" type="search" placeholder="ابحث بعنوان الكتاب أو اسم المؤلف…" aria-label="بحث عن كتاب">
+        </div>
+      </div>
+    </div>
+    <div class="shelf">
+      <div class="chips" id="chips" role="group" aria-label="التصنيفات"></div>
+      <p class="count" id="count" aria-live="polite"></p>
+      <div class="grid" id="grid"></div>
+      <p class="empty" id="empty" hidden>لا توجد نتائج مطابقة لبحثك. جرّب كلمة أخرى أو اختر تصنيفاً مختلفاً.</p>
+    </div>
+  </section>
+
+  <section class="page" id="p-about">
+    <div class="wrap">
+      <h2>من نحن</h2>
+      <div class="panel">
+        <p>مكتبة الكتب PDF منصة مجانية تعرض مجموعة مختارة من الكتب بصيغة PDF في التعليم والروايات والتقنية والعلوم والقصص، مع تفاصيل مختصرة لكل كتاب.</p>
+        <p>نعرض فقط الكتب التي يملك القائم على الموقع حق توزيعها، سواء كانت مجانية أو مرخّصة بترخيص مفتوح أو بإذن من المؤلف أو الناشر. تُستضاف الملفات على MediaFire، ويتم التحميل مباشرة من صفحة MediaFire الرسمية.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="p-contact">
+    <div class="wrap">
+      <h2>تواصل معنا</h2>
+      <div class="panel">
+        <p>نرحب باقتراحاتك وملاحظاتك، وبطلبات إضافة كتب أو إزالتها.</p>
+        <h3>البريد الإلكتروني</h3>
+        <p><a href="mailto:contact@example.com">contact@example.com</a></p>
+        <p class="hint">إذا كنت مؤلفاً أو ناشراً وترغب في إزالة كتاب يخصك، أرسل لنا العنوان والدليل على الملكية، وسنتولى الأمر في أقرب وقت.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="p-privacy">
+    <div class="wrap">
+      <h2>سياسة الخصوصية</h2>
+      <div class="panel">
+        <p>لا يطلب هذا الموقع إنشاء حساب ولا يجمع بيانات شخصية من الزوار.</p>
+        <p>عند الضغط على زر «تحميل PDF» ينتقل المتصفح إلى صفحة MediaFire الخاصة بالكتاب في نافذة جديدة، وتخضع تلك الصفحة لسياسة الخصوصية الخاصة بـ MediaFire.</p>
+        <p>يستخدم الموقع التخزين المحلي في متصفحك لحفظ الكتب التي أضافها المسؤول من لوحة الإدارة فقط. يمكنك مسح هذه البيانات في أي وقت من إعدادات المتصفح.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="p-admin">
+    <div class="wrap">
+      <h2>لوحة المسؤول</h2>
+
+      <div class="panel" id="gate">
+        <form id="login" class="gate" autocomplete="off">
+          <label for="pw" style="width:100%">كلمة مرور المسؤول</label>
+          <input id="pw" type="password" required>
+          <button class="btn-s" type="submit">دخول</button>
+        </form>
+      </div>
+
+      <div id="tools" hidden>
+        <div class="panel">
+          <h3 style="margin-top:0">إضافة كتاب جديد</h3>
+          <p class="hint">أضف رابط MediaFire الحقيقي الذي تملكه فقط. الكتب تظهر فوراً في متصفحك، ولتظهر للجميع انسخ الكود من القسم أدناه وأضفه إلى مصفوفة BOOKS في الملف.</p>
+          <form id="bookForm">
+            <div class="row">
+              <div><label for="f-title">عنوان الكتاب</label><input id="f-title" name="title" required></div>
+              <div><label for="f-author">المؤلف</label><input id="f-author" name="author" required></div>
+            </div>
+            <div class="row">
+              <div><label for="f-cat">التصنيف</label>
+                <select id="f-cat" name="category">
+                  <option value="education">تعليم</option>
+                  <option value="novels">روايات</option>
+                  <option value="technology">تقنية</option>
+                  <option value="science">علوم</option>
+                  <option value="stories">قصص</option>
+                </select>
+              </div>
+              <div><label for="f-mf">رابط MediaFire</label><input id="f-mf" name="mediafire" type="url" placeholder="https://www.mediafire.com/…" required></div>
+            </div>
+            <div><label for="f-desc">وصف مختصر</label><textarea id="f-desc" name="description" required></textarea></div>
+            <div class="row">
+              <div><label for="f-cover">رابط صورة الغلاف (https)</label><input id="f-cover" name="cover" type="url" placeholder="https://…"></div>
+              <div><label for="f-file">أو ارفع صورة الغلاف (حتى 400 كيلوبايت)</label><input id="f-file" name="file" type="file" accept="image/*"></div>
+            </div>
+            <button class="btn-s" type="submit">حفظ الكتاب</button>
+          </form>
+        </div>
+
+        <div class="panel">
+          <h3 style="margin-top:0">الكتب المضافة من اللوحة</h3>
+          <div id="extraList"></div>
+        </div>
+
+        <div class="panel">
+          <h3 style="margin-top:0">كود الإضافة الدائمة</h3>
+          <p class="hint">اضغط «توليد الكود» ثم «نسخ»، والصقه داخل مصفوفة BOOKS في أعلى قسم السكربت. الصور المرفوعة يجب استضافتها خارجياً ولصق رابطها هنا.</p>
+          <textarea id="export" readonly></textarea>
+          <div class="gate">
+            <button class="btn-s" id="gen" type="button">توليد الكود</button>
+            <button class="btn-s" id="copy" type="button">نسخ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="fgrid">
+      <div>
+        <h4>من نحن</h4>
+        <p>مكتبة رقمية تعرض كتب PDF المتاحة قانونياً للتوزيع، مع روابط تحميل مباشرة من MediaFire.</p>
+        <p><a href="#about">اقرأ المزيد</a></p>
+      </div>
+      <div>
+        <h4>تواصل معنا</h4>
+        <p><a href="#contact">صفحة التواصل</a></p>
+        <p><a href="mailto:contact@example.com">contact@example.com</a></p>
+      </div>
+      <div>
+        <h4>الخصوصية</h4>
+        <p><a href="#privacy">سياسة الخصوصية</a></p>
+        <p><a href="#admin">لوحة المسؤول</a></p>
+      </div>
+    </div>
+    <div class="copy">© 2026 مكتبة الكتب PDF. جميع الحقوق محفوظة.</div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ==========================================================
+   إعدادات الكتب: الكتب الدائمة تُضاف هنا.
+   mediafire: رابط MediaFire حقيقي تملك حق توزيعه فقط.
+   cover: رابط https لصورة الغلاف، أو اتركه فارغاً لعرض الغلاف التلقائي.
+   ========================================================== */
+const ADMIN_PASS = "change-me-now"; // غيّر كلمة المرور قبل النشر
+
+const CATS = {education:"تعليم", novels:"روايات", technology:"تقنية", science:"علوم", stories:"قصص"};
+
+const BOOKS = [
+  {id:"b1", title:"أساسيات الرياضيات للمرحلة الثانوية", author:"اسم المؤلف", category:"education", description:"مراجعة مبسطة للمفاهيم الرياضية الأساسية مع تمارين محلولة.", cover:"", mediafire:""},
+  {id:"b2", title:"ليالي المدينة القديمة", author:"اسم الروائي", category:"novels", description:"رواية اجتماعية تدور أحداثها في أزقة مدينة قديمة عبر أجيال متعاقبة.", cover:"", mediafire:""},
+  {id:"b3", title:"مقدمة في البرمجة", author:"اسم المؤلف", category:"technology", description:"دليل للمبتدئين يشرح أساسيات البرمجة وبناء أول مشروع صغير.", cover:"", mediafire:""},
+  {id:"b4", title:"رحلة إلى عالم الخلية", author:"اسم الكاتب", category:"science", description:"كتاب علمي مبسط يشرح تركيب الخلية ووظائف أجزائها بأسلوب مشوّق.", cover:"", mediafire:""},
+  {id:"b5", title:"حكايات من الصحراء", author:"اسم القاص", category:"stories", description:"مجموعة قصصية قصيرة تستلهم الحكايات الشعبية وتنتهي بعبر إنسانية.", cover:"", mediafire:""},
+  {id:"b6", title:"مهارات الدراسة الفعّالة", author:"اسم المؤلف", category:"education", description:"طرق عملية لتنظيم الوقت وتحسين التركيز والاستعداد للاختبارات.", cover:"", mediafire:""},
+  {id:"b7", title:"دليل الإنجليزية للمبتدئين", author:"اسم المؤلف", category:"education", description:"قواعد أساسية ومفردات يومية مع تمارين قصيرة لكل درس.", cover:"", mediafire:""},
+  {id:"b8", title:"أصوات الميناء", author:"اسم الروائي", category:"novels", description:"رواية عن حياة سكان مدينة ساحلية وأحلامهم المتقاطعة.", cover:"", mediafire:""},
+  {id:"b9", title:"أساسيات شبكات الحاسوب", author:"اسم المؤلف", category:"technology", description:"شرح مبسط لبروتوكولات الشبكات والعناوين وطرق الاتصال بينها.", cover:"", mediafire:""},
+  {id:"b10", title:"مدخل إلى علم الفلك", author:"اسم الكاتب", category:"science", description:"جولة في النجوم والكواكب وتطور فهمنا للكون عبر التاريخ.", cover:"", mediafire:""},
+  {id:"b11", title:"قصص قصيرة للأطفال", author:"اسم القاص", category:"stories", description:"حكايات قصيرة مصوّرة بالكلمات تعلّم القيم والصدق والتعاون.", cover:"", mediafire:""},
+  {id:"b12", title:"تاريخ الحضارات القديمة", author:"اسم المؤلف", category:"education", description:"عرض موجز لأبرز الحضارات القديمة ونظمها وإنجازاتها.", cover:"", mediafire:""},
+  {id:"b13", title:"رسائل من المدينة", author:"اسم الروائي", category:"novels", description:"رواية قصيرة تروي قصة الحب والفقد من خلال رسائل متبادلة.", cover:"", mediafire:""},
+  {id:"b14", title:"مقدمة في الذكاء الاصطناعي", author:"اسم المؤلف", category:"technology", description:"فهم عام لمفاهيم التعلم الآلي وتطبيقاته في الحياة اليومية.", cover:"", mediafire:""},
+  {id:"b15", title:"الفيزياء في حياتنا اليومية", author:"اسم الكاتب", category:"science", description:"أمثلة من الحياة اليومية تشرح قوانين الحركة والضوء والطاقة.", cover:"", mediafire:""},
+  {id:"b16", title:"حكايات ما قبل النوم", author:"اسم القاص", category:"stories", description:"مجموعة حكايات هادئة مناسبة للقراءة قبل النوم للعائلة كلها.", cover:"", mediafire:""},
+  {id:"b17", title:"البخلاء", author:"الجاحظ", category:"stories", description:"كتاب أدبي كلاسيكي مليء بالحكايات الساخرة.", cover:"", url:"https://sites.dlib.nyu.edu/viewer/books/columbia_aco001005/display?lang=ar", search:false},
+  {id:"b18", title:"البيان والتبيين", author:"الجاحظ", category:"education", description:"من أشهر كتب الأدب والبلاغة العربية.", cover:"", url:"https://sites.dlib.nyu.edu/viewer/books/auc_aco001112/display?lang=ar", search:false},
+  {id:"b19", title:"ألف ليلة وليلة", author:"التراث العربي", category:"stories", description:"مجموعة من الحكايات والقصص الشعبية.", cover:"", url:"https://aco.dlib.nyu.edu/", search:true},
+  {id:"b20", title:"مقدمة ابن خلدون", author:"ابن خلدون", category:"education", description:"كتاب كلاسيكي في التاريخ والعمران والمجتمع.", cover:"", url:"https://aco.dlib.nyu.edu/", search:true},
+  {id:"b21", title:"كليلة ودمنة", author:"ابن المقفع", category:"stories", description:"حكايات رمزية ممتعة تحمل الحكمة والعبر.", cover:"", url:"https://aco.dlib.nyu.edu/", search:true}
+];
+
+/* ---------- أدوات مساعدة ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const isMF = u => /^https:\/\/(www\.)?mediafire\.com\//i.test(u || "");
+const isImg = u => /^(https:\/\/|data:image\/)/.test(u || "");
+const TRUSTED = /^https:\/\/((www\.)?mediafire\.com|sites\.dlib\.nyu\.edu|aco\.dlib\.nyu\.edu)\//i;
+const okLink = u => TRUSTED.test(u || "");
+const linkOf = b => okLink(b.url) ? b.url : (okLink(b.mediafire) ? b.mediafire : "");
+const extra = () => { try { return JSON.parse(localStorage.getItem("pdfLib.extra") || "[]"); } catch (e) { return []; } };
+const saveExtra = a => localStorage.setItem("pdfLib.extra", JSON.stringify(a));
+const all = () => [...BOOKS, ...extra()];
+let cat = "all", query = "", authed = false;
+
+function toast(msg){
+  const t = $("#toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(t._h);
+  t._h = setTimeout(() => t.classList.remove("show"), 3200);
+}
+
+/* ---------- بطاقة الكتاب ---------- */
+const DL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 17v3h16v-3"/></svg>';
+
+function card(b){
+  const href = linkOf(b);
+  const label = b.search ? "البحث عن الكتاب وتحميل PDF" : "تحميل PDF";
+  const cover = isImg(b.cover)
+    ? `<img src="${esc(b.cover)}" alt="${esc(b.title)}" loading="lazy">`
+    : esc(b.title);
+  const link = href
+    ? `href="${esc(href)}" target="_blank" rel="noopener noreferrer"`
+    : `href="#" data-missing="1"`;
+  return `<article class="card">
+    <div class="cover cat-${esc(b.category)}">${cover}</div>
+    <div class="body">
+      <span class="tag">${esc(CATS[b.category] || "عام")}</span>
+      <h3>${esc(b.title)}</h3>
+      <p class="author">تأليف: ${esc(b.author)}</p>
+      <p class="desc">${esc(b.description)}</p>
+      <a class="btn" ${link}>${DL_ICON}<span>${label}</span></a>
+    </div>
+  </article>`;
+}
+
+function render(){
+  const term = query.trim().toLowerCase();
+  const list = all().filter(b =>
+    (cat === "all" || b.category === cat) &&
+    (!term || (b.title + " " + b.author).toLowerCase().includes(term))
+  );
+  $("#grid").innerHTML = list.map(card).join("");
+  $("#empty").hidden = list.length > 0;
+  $("#count").textContent = `عدد الكتب: ${list.length}`;
+  $("#chips").innerHTML = [["all","الكل"], ...Object.entries(CATS)]
+    .map(([k, v]) => `<button class="chip${cat === k ? " on" : ""}" data-cat="${k}" aria-pressed="${cat === k}">${v}</button>`)
+    .join("");
+}
+
+/* ---------- التنقل بين الصفحات ---------- */
+const PAGES = ["home","about","contact","privacy","admin"];
+function route(){
+  let h = location.hash.slice(1);
+  if (!PAGES.includes(h)) h = "home";
+  document.querySelectorAll(".page").forEach(p => p.classList.toggle("on", p.id === "p-" + h));
+  document.querySelectorAll("nav a").forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + h));
+  if (h === "admin") renderAdmin();
+  window.scrollTo(0, 0);
+}
+
+/* ---------- الأحداث ---------- */
+$("#q").addEventListener("input", e => { query = e.target.value; render(); });
+$("#chips").addEventListener("click", e => {
+  const b = e.target.closest("[data-cat]");
+  if (b) { cat = b.dataset.cat; render(); }
+});
+$("#grid").addEventListener("click", e => {
+  if (e.target.closest("[data-missing]")) {
+    e.preventDefault();
+    toast("رابط التحميل لهذا الكتاب لم يُضَف بعد. يرجى التواصل مع المسؤول.");
+  }
+});
+window.addEventListener("hashchange", route);
+
+/* ---------- لوحة المسؤول ---------- */
+function renderAdmin(){
+  $("#gate").hidden = authed;
+  $("#tools").hidden = !authed;
+  $("#extraList").innerHTML = extra().map((b, i) =>
+    `<div class="item"><span>${esc(b.title)} — ${esc(b.author)}</span><button class="btn-s danger" type="button" data-del="${i}">حذف</button></div>`
+  ).join("") || '<p class="hint">لا توجد كتب مضافة من اللوحة بعد.</p>';
+}
+
+$("#login").addEventListener("submit", e => {
+  e.preventDefault();
+  if ($("#pw").value === ADMIN_PASS) {
+    authed = true;
+    $("#pw").value = "";
+    renderAdmin();
+  } else {
+    toast("كلمة المرور غير صحيحة.");
+  }
+});
+
+$("#extraList").addEventListener("click", e => {
+  const i = e.target.dataset.del;
+  if (i === undefined) return;
+  const list = extra();
+  list.splice(+i, 1);
+  saveExtra(list);
+  renderAdmin();
+  render();
+  toast("تم حذف الكتاب.");
+});
+
+$("#bookForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const f = e.target;
+  const v = n => f.elements[n].value.trim();
+  const link = v("mediafire");
+  if (!isMF(link)) { toast("يجب أن يكون الرابط من mediafire.com وبصيغة https."); return; }
+
+  let cover = v("cover");
+  const file = f.elements.file.files[0];
+  if (file) {
+    if (file.size > 400 * 1024) { toast("حجم الصورة يتجاوز 400 كيلوبايت."); return; }
+    cover = await new Promise(res => {
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.readAsDataURL(file);
+    });
+  }
+  if (cover && !isImg(cover)) { toast("رابط صورة الغلاف غير صالح."); return; }
+
+  saveExtra([...extra(), {
+    id: "x" + Date.now(),
+    title: v("title"), author: v("author"), category: v("category"),
+    description: v("description"), cover, mediafire: link
+  }]);
+  f.reset();
+  renderAdmin();
+  render();
+  toast("تمت إضافة الكتاب بنجاح.");
+});
+
+$("#gen").addEventListener("click", () => {
+  const code = extra().map(b => {
+    const cov = b.cover && !b.cover.startsWith("data:") ? b.cover : "";
+    return `  {id:${JSON.stringify(b.id)}, title:${JSON.stringify(b.title)}, author:${JSON.stringify(b.author)}, category:${JSON.stringify(b.category)}, description:${JSON.stringify(b.description)}, cover:${JSON.stringify(cov)}, mediafire:${JSON.stringify(b.mediafire)}},`;
+  }).join("\n");
+  $("#export").value = code || "// لا توجد كتب مضافة بعد";
+});
+
+$("#copy").addEventListener("click", async () => {
+  const t = $("#export");
+  if (!t.value) { toast("اضغط «توليد الكود» أولاً."); return; }
+  try { await navigator.clipboard.writeText(t.value); toast("تم نسخ الكود."); }
+  catch (_) { t.select(); toast("انسخ الكود يدوياً."); }
+});
+
+/* ---------- التشغيل ---------- */
+render();
+route();
+</script>
+</body>
+</html>
